@@ -1,4 +1,4 @@
-module.exports.cards = [
+[
   {
     "likes": [
       {
@@ -485,4 +485,4 @@ module.exports.cards = [
     },
     "createdAt": "2019-08-18T17:57:31.609Z"
   }
-];
+]
