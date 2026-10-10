@@ -1,11 +1,27 @@
-const user = require('express').Router();
-const { users } = require('./users.json');
+const users = require("express").Router();
+const fs = require("fs");
+const path = require("path");
 
-user.get('/users', (req, res) => {
-  res.send(users);
-});
+const getUsers = (req, res) => {
+  const dataPath = path.join(__dirname, "users.json");
 
-user.get('/users/:id', (req, res) => {
+  fs.readFile(dataPath, { encoding: "utf8" }, (err, data) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+  });
+
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+  });
+
+  res
+    .send(users)
+    .catch(() => res.status(500).send({ message: "Error del servidor" }));
+};
+
+const getUser = (req, res) => {
   const { id } = req.params;
 
   if (!users[id]) {
@@ -14,6 +30,9 @@ user.get('/users/:id', (req, res) => {
   }
 
   res.send(users[id]);
-});
+};
 
-module.exports = user;
+users.get("/users", getUsers);
+users.get("/users/:id", getUser);
+
+module.exports = users;
