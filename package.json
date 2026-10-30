@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node app.js",
     "dev": "nodemon app.js",
     "lint": "npx eslint ."
   },
@@ -20,7 +21,8 @@
   },
   "homepage": "https://github.com/AlanHuesca20/web_project_around_express#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mongoose": "^9.11.2"
   },
   "devDependencies": {
     "eslint": "^8.56.0",

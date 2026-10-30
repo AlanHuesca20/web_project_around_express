@@ -3,20 +3,15 @@ const fs = require("fs");
 const path = require("path");
 
 const getCards = (req, res) => {
-  const dataPath = path.join(__dirname, "cards.json");
+  const dataPath = path.join(__dirname, "..", "data", "cards.json");
 
   fs.readFile(dataPath, { encoding: "utf8" }, (err, data) => {
     if (err) {
-      console.log(err);
+      res.status(500).json({ message: "Ha ocurrido un error en el servidor" });
       return;
     }
+    res.json(JSON.parse(data));
   });
-
-  res.writeHead(200, {
-    "Content-Type": "text/html",
-  });
-
-  res.send(cards);
 };
 
 cards.get("/cards", getCards);
