@@ -1,27 +1,26 @@
 const express = require("express");
+const path = require("path");
 const mongoose = require("mongoose");
 const usersRouter = require("./routes/users");
 const cardsRouter = require("./routes/cards");
+const bodyParser = require("body-parser");
+const app = express();
 
 const { PORT = 3000 } = process.env;
 
-const app = express();
-app.use("/", usersRouter);
-app.use("/", cardsRouter);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect("mongodb://localhost:27017/aroundb", {
   useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
+  useUnifiedTopology: true,
 });
 
-app.use((req, res) => {
+const errorHandler = (req, res, next) => {
   res.status(404).json({ message: "Recurso solicitado no encontrado" });
-});
+};
 
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, res, next) => {
   req.user = {
@@ -29,4 +28,11 @@ app.use((req, res, next) => {
   };
 
   next();
+});
+app.use("/", usersRouter);
+app.use("/", cardsRouter);
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}...`);
 });

@@ -8,10 +8,6 @@ const userSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 30,
   },
-  pronouns: {
-    type: String,
-    enum: ["elle", "ella", "él", "otro pronombre"],
-  },
   about: {
     type: String,
     required: true,

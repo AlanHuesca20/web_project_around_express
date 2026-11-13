@@ -1,17 +1,34 @@
 const Card = require("../models/card");
-const fs = require("fs");
-const path = require("path");
+
+const handlerError = () => {
+  const error = new Error("Card not found");
+  error.statusCode = 404;
+  throw error;
+};
 
 const getCards = (req, res) => {
-  const dataPath = path.join(__dirname, "..", "data", "cards.json");
+  Card.find({})
+    .then((cards) => res.send(cards))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
 
-  fs.readFile(dataPath, { encoding: "utf8" }, (err, data) => {
-    if (err) {
-      res.status(500).json({ message: "Ha ocurrido un error en el servidor" });
-      return;
-    }
-    res.json(JSON.parse(data));
-  });
+const getCard = (req, res) => {
+  Card.findById(req.params.id)
+    .orFail(() => handlerError())
+    .then((card) => {
+      res.send(card);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(400).send({ message: err.message });
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
+      } else {
+        res
+          .status(500)
+          .send({ message: err.message || "error interno del servidor" });
+      }
+    });
 };
 
 const createCard = (req, res) => {
@@ -95,6 +112,7 @@ const dislikeCard = (req, res) => {
 
 module.exports = {
   getCards,
+  getCard,
   likeCard,
   createCard,
   deleteCard,

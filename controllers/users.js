@@ -1,34 +1,34 @@
 const User = require("../models/user");
-const fs = require("fs");
-const path = require("path");
+
+const handlerError = () => {
+  const error = new Error("Usuario no encontrado");
+  error.statusCode = 404;
+  throw error;
+};
 
 const getUsers = (req, res) => {
-  const dataPath = path.join(__dirname, "..", "data", "users.json");
-
-  fs.readFile(dataPath, { encoding: "utf8" }, (err, data) => {
-    if (err) {
-      res.status(500).json({ message: "Ha ocurrido un error en el servidor" });
-      return;
-    }
-    res.json(JSON.parse(data));
-  });
+  User.find({})
+    .then((users) => res.send(users))
+    .catch(() => res.status(500).send({ message: "Error del servidor" }));
 };
 
 const getUser = (req, res) => {
-  const dataPath = path.join(__dirname, "..", "data", "users.json");
-
-  fs.readFile(dataPath, { encoding: "utf8" }, (err, data) => {
-    if (err) {
-      res.status(500).json({ message: "Ha ocurrido un error en el servidor" });
-      return;
-    }
-    const user = JSON.parse(data).find((item) => item._id === req.params.id);
-    if (!user) {
-      res.status(404).json({ message: "ID de usuario no encontrado" });
-      return;
-    }
-    res.json(user);
-  });
+  User.findById(req.params.id)
+    .orFail(() => handlerError())
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(400).send({ message: err.message });
+      } else if (err.statusCode === 404) {
+        res.status(404).send({ message: err.message });
+      } else {
+        res
+          .status(500)
+          .send({ message: err.message || "error interno del servidor" });
+      }
+    });
 };
 
 const createUser = (req, res) => {
