@@ -1,32 +1,40 @@
-const Card = require("../models/card");
+const Card = require('../models/card');
+
+const ERROR_CODE = {
+  BAD_REQUEST: 400,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+};
 
 const handlerError = () => {
-  const error = new Error("Card not found");
-  error.statusCode = 404;
+  const error = new Error('Card not found');
+  error.name = 'NotFoundError';
   throw error;
 };
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res
+      .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Error interno del servidor' }));
 };
 
 const getCard = (req, res) => {
-  Card.findById(req.params.id)
+  Card.findById(req.params.cardId)
     .orFail(() => handlerError())
     .then((card) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else if (err.name === 'NotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send({ message: err.message });
       } else {
         res
-          .status(500)
-          .send({ message: err.message || "error interno del servidor" });
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };
@@ -37,75 +45,77 @@ const createCard = (req, res) => {
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
       } else {
-        res.status(500).send({ message: "Error interno del servidor" });
+        res
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.id)
+  Card.findByIdAndDelete(req.params.cardId)
     .orFail(() => handlerError())
     .then((card) => {
-      return res.send(card);
+      res.send(card);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else if (err.name === 'NotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send({ message: err.message });
       } else {
         res
-          .status(500)
-          .send({ message: err.message || "error interno del servidor" });
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };
 
 const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
-    req.params.id,
+    req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => handlerError())
     .then((card) => {
-      return res.send(card);
+      res.send(card);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else if (err.name === 'NotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send({ message: err.message });
       } else {
         res
-          .status(500)
-          .send({ message: err.message || "error interno del servidor" });
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };
 
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
-    req.params.id,
+    req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => handlerError())
     .then((card) => {
-      return res.send(card);
+      res.send(card);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else if (err.name === 'NotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send({ message: err.message });
       } else {
         res
-          .status(500)
-          .send({ message: err.message || "error interno del servidor" });
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };

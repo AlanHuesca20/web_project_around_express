@@ -1,32 +1,40 @@
-const User = require("../models/user");
+const User = require('../models/user');
+
+const ERROR_CODE = {
+  BAD_REQUEST: 400,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+};
 
 const handlerError = () => {
-  const error = new Error("Usuario no encontrado");
-  error.statusCode = 404;
+  const error = new Error('Usuario no encontrado');
+  error.name = 'NotFoundError';
   throw error;
 };
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: "Error del servidor" }));
+    .catch(() => res
+      .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Error interno del servidor' }));
 };
 
 const getUser = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .orFail(() => handlerError())
     .then((user) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else if (err.name === 'NotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send({ message: err.message });
       } else {
         res
-          .status(500)
-          .send({ message: err.message || "error interno del servidor" });
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };
@@ -34,7 +42,15 @@ const getUser = (req, res) => {
 const createUser = (req, res) => {
   User.create(req.body)
     .then((user) => res.send(user))
-    .catch(() => res.status(500).send({ message: "Error del servidor" }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else {
+        res
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
+      }
+    });
 };
 
 const updateUser = (req, res) => {
@@ -47,14 +63,14 @@ const updateUser = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else if (err.name === 'NotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send({ message: err.message });
       } else {
         res
-          .status(500)
-          .send({ message: err.message || "error interno del servidor" });
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };
@@ -70,14 +86,14 @@ const updateAvatar = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
-      } else if (err.statusCode === 404) {
-        res.status(404).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE.BAD_REQUEST).send({ message: err.message });
+      } else if (err.name === 'NotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send({ message: err.message });
       } else {
         res
-          .status(500)
-          .send({ message: err.message || "error interno del servidor" });
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send({ message: 'Error interno del servidor' });
       }
     });
 };

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const urlMessage = "El campo {PATH} debe ser una URL válida.";
+const mongoose = require('mongoose');
+const urlMessage = 'El campo {PATH} debe ser una URL válida.';
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -27,4 +27,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model('user', userSchema);
